@@ -1,32 +1,84 @@
-# Qr_reader_and_writer
-#Numele echipei este BitScanner:
-  Neica Mario-Alexandru(134),Roibu Amelia-Maria(134) Danila Tudor-Mihail(134), Draghici Bianca-Elena(134)
-#Descriere a programului
-  Cand programul se initializeaza userul are de ales intre modul de citire si modul de generare(1 sau 2)
-  ![image](https://github.com/user-attachments/assets/e2706e36-21f1-4551-b5aa-ca24bcc639af)
+# **BitScanner**
 
-  -Daca acesta alege modul de generare a unui cod QR trebuie apoi sa introduca un sir de caractere. Programul ia sirul de caractere, ii calculeaza lungimea si apoi transforma fiecare caracter intr-o       
-   secventa de 8 biti, corespunzatoare codului ASCII. Sirul pe care il avem acum contine pe primele 4 pozitii 0100, pt byte mode, pe urmatorii 8 biti lungimea sirului,datele utilizatorului si bitii de 
-   padding. Se imparte pe blocuri de cate 8 biti(codewords) si cu ajutorul algoritmului Reed-Solomon se genereaza portiunile care ajuta la repararea erorilor(Noi folosim L-mode, care recupereaza pana la 7%     din date).Dupa aceea creeaza o matrice binara(de 0 si 1), in care pune mai intai finder patterns, separatorii, timing patterns si daca e nevoie(versiunea 2 in sus) allignment pattern-ul. Se marcheaza        aceste zone,pentru a nu fi alterate, iar apoi, pornind de pe ultima casuta din coltul dreapta jos, se adauga modul,lungimea,datele si codewordsurile de corectare, intr-un pattern care merge in zig-zag,      de jos in sus si alternativ de sus in jos. Se aplica apoi toate cele 8 masti, se calculeaza pentru fiecare scorul de penalizare si se alege masca cu cel mai mic scor. Intr-un final, adaugam codurile   
-   de format, care contine 01(Modul L), urmatorii 3 biti care reprezinta masca folosita si apoi 10 biti ce ajuta la codificarea BCH. Cu ajutorul bibliotecii matplotlib.pyplot generam un png care contine         codul qr dorit.
-   Outputul pentru numele echipei:
+## **Team Members**
+- **Neica Mario-Alexandru** (134)
+- **Roibu Amelia-Maria** (134)
+- **Danila Tudor-Mihail** (134)
+- **Draghici Bianca-Elena** (134)
+
+---
+
+## **Program Description**
+When the program initializes, the user has to choose between two modes: **Reading Mode** or **Generation Mode** (1 or 2).
+
+### **QR Code Generation Mode**
+If the user selects the QR code generation mode, they need to enter a character string. The program processes the input string as follows:
+
+1. **String Processing:**
+   - The program calculates the length of the string.
+   - Each character is converted into an 8-bit sequence corresponding to its ASCII code.
    
+2. **QR Code Formatting:**
+   - The first 4 bits are set to `0100` (Byte Mode).
+   - The next 8 bits store the string length.
+   - The user data is appended, followed by padding bits.
+   - The data is split into 8-bit blocks (codewords).
+
+3. **Error Correction:**
+   - Using the **Reed-Solomon algorithm**, error-correcting codewords are generated.
+   - The program uses **L-mode**, which allows for up to 7% data recovery.
+
+4. **Matrix Construction:**
+   - A binary matrix (0s and 1s) is created.
+   - Finder patterns, separators, timing patterns, and alignment patterns (for version 2+) are placed.
+   - These areas are marked to prevent alterations.
+   - The data, length, and error correction codewords are placed in a **zig-zag pattern**, starting from the bottom-right corner.
+
+5. **Masking and Formatting:**
+   - All **8 masks** are applied, and a penalty score is calculated for each.
+   - The mask with the **lowest penalty score** is selected.
+   - Format codes are added, including:
+     - `01` (L Mode)
+     - 3 bits representing the selected mask
+     - 10 BCH-encoded bits for error detection.
+
+6. **QR Code Output:**
+   - The QR code is generated as a PNG image using the **matplotlib.pyplot** library.
+   
+**Example Output:** QR code for the team name.
 <img src=https://github.com/neica200/Qr_reader_and_writer/blob/main/qr_test.png height="300px">
+---
 
-  -Daca acesta alege modul de citire, trebuie sa introduca numele qr-lui din fisier pe care acesta doreste sa le scaneze. Noi am folosit cele doua coduri qr generate online, pentru numele echipei si link-ul   paginii de curs:
+### **QR Code Reading Mode**
+If the user selects the QR code reading mode, they need to provide the filename of the QR image to be scanned. The program follows these steps:
 
-  
-  <img src=https://github.com/neica200/Qr_reader_and_writer/blob/main/qr_link.png height="300px">(Qr link)
-  Cu ajutorul bibliotecii cv2, eliminam marginile albe din poza(binarizam si eliminam fundalul) pentru a ramane doar cu codul qr, calculam marimea unui modul numarand numarul de pixeli negrii de primul    rand, dimensiunea unui modul fiind acest numar impartit la 7(un finder pattern are mereu 7 module lungime). Stiind dimensiunea unui modul, impartim la lungimea pozei si determinam versiunea codului qr.Stiind versiunea, generam o matrice si o completam corespunzator mediei din patratul determinat de dimensiunea unui modul si astfel obtinem o matrice 1 la 1 cu codul qr.Facem o lista cu coordonatele care contin elementele importante din cod, in functie de versiune, pentru a nu le distorsiona cu masca si a nu le lua in calcul cand citim bitii. Ne uitam in partea de format si aflam ce masca s-a folosit, scoatem masca dupa formula specifica. Ne uitam la primii patru biti(Orientarea e tot de la coltul din dreapta jos, de jos in sus) si verificam modul de encodare, iar urmatorii 8 biti ne spun lungimea mesajului. Deobicei e byte mode, asa ca incepem sa luam cate 8 biti si sa generam caracterul corespunzator codului ascii scris pe acei 8 biti.
+1. **Preprocessing:**
+   - The image is loaded and processed using **OpenCV (cv2)**.
+   - White margins are removed (binarization and background elimination).
 
-Outputul pentru codul qr qr_link.png:
+2. **QR Code Structure Analysis:**
+   - The **module size** is determined by counting black pixels in the first row and dividing by 7 (since a finder pattern is always 7 modules wide).
+   - Knowing the module size, the image dimensions are divided accordingly to determine the QR code version.
+   - A binary matrix is generated by averaging pixel values within each module.
+
+3. **Decoding the QR Code:**
+   - A list of coordinates containing key QR elements is created (finder patterns, alignment patterns, etc.) to avoid interference.
+   - The **format information** is extracted to determine the applied mask.
+   - The mask is removed using the standard **QR decoding formula**.
+   - The first 4 bits (from bottom-right, moving upward) indicate the **encoding mode**.
+   - The next 8 bits represent the **message length**.
+   - The message is extracted by grouping bits into 8-bit ASCII characters.
+
+**Example Output:** Decoded text from `qr_link.png`
+<img src=https://github.com/neica200/Qr_reader_and_writer/blob/main/qr_link.png height="300px">
 ![image](https://github.com/user-attachments/assets/86a10c1a-1c6f-4bd0-9980-00aa600e4bbe)
+---
 
-Referinte:
-Cum functioneaza codul qr?:
-https://www.thonky.com/qr-code-tutorial/introduction
-https://www.youtube.com/watch?v=142TGhaTMtI
-https://www.nayuki.io/page/creating-a-qr-code-step-by-step4
-Prelucrare imagini:
-https://docs.opencv.org/4.x/d6/d00/tutorial_py_root.html
-https://medium.com/@tharindad7/image-binarization-in-a-nutshell-b40b63c0228e
+## **References**
+- **How QR Codes Work:**  
+  - https://www.thonky.com/qr-code-tutorial/introduction  
+  - https://www.youtube.com/watch?v=142TGhaTMtI  
+  - https://www.nayuki.io/page/creating-a-qr-code-step-by-step4  
+- **Image Processing:**  
+  - https://docs.opencv.org/4.x/d6/d00/tutorial_py_root.html  
+  - https://medium.com/@tharindad7/image-binarization-in-a-nutshell-b40b63c0228e
